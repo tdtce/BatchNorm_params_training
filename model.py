@@ -15,9 +15,8 @@ def build_model(name, device, output=10):
         if not is_valid_cifar_name(name):
             raise ValueError(f'Invalid model name: {name}')
 
-        initializer = nn.init.xavier_uniform
         plan = get_plan(name)
-        model = ResNetCifar(plan, initializer, output)
+        model = ResNetCifar(plan, weight_init, output)
         model.to(device)
         return model
 
