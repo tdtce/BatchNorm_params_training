@@ -12,7 +12,7 @@ from utils import accuracy, custom_decrease
 from model import build_model
 from train import train_one_epoch, validate
 from torch import optim
-from utils import
+
 
 def runner(args):
     """
@@ -26,7 +26,7 @@ def runner(args):
     """
     print("Preparation in progress ...")
     device = torch.device("cuda: 0") if args.gpu else torch.device("cpu")
-    model = build_model("ResNet18", device)
+    model = build_model(args.model, device)
 
     optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9)
     lr_scheduler = optim.lr_scheduler.LambdaLR(optimizer, custom_decrease)
@@ -61,7 +61,7 @@ def runner(args):
         writer = SummaryWriter()
         best_val_loss = np.inf
         for epoch in range(args.epoch):
-            print(f"Starting {epoch}/{args.epoch} epoch")
+            print(f"Starting {epoch + 1}/{args.epoch} epoch")
             train_losses = train_one_epoch(config)
             train_loss = np.mean(train_losses)
 
@@ -72,7 +72,7 @@ def runner(args):
             writer.add_scalar('Loss/train', train_loss)
             writer.add_scalar('Loss/val', val_loss)
             writer.add_scalar('Metric/val', val_metric_value)
-            print(f"Epoch {epoch}/{args.epoch}:" + \
+            print(f"Epoch {epoch + 1}/{args.epoch}:" + \
                   f" train loss = {train_loss} " + \
                   f"val loss = {val_loss}")
             # Save best model
@@ -108,18 +108,20 @@ def parse_arguments():
 
     Parser arguments
     ----------------
-    - name: name of experiment for saving purposes.
-    - train: enable train mode.
-    - test: enable test mode.
-    - epoch: amount of epoch for training.
-    - batch_size: amount of samples per iteration during training.
-    - learning_rate: initial learning rate.
-    - weight_path: weight for loading.
-    - gpu: select device for eval (if gpu not specified then used CPU).
-    - data_dir: folder for downloading dataset
+    - name : name of experiment for saving purposes.
+    - model : name of network architecture.
+    - train : enable train mode.
+    - test : enable test mode.
+    - epoch : amount of epoch for training.
+    - batch_size : amount of samples per iteration during training.
+    - learning_rate : initial learning rate.
+    - weight_path : weight for loading.
+    - gpu : select device for eval (if gpu not specified then used CPU).
+    - data_dir : folder for downloading dataset
     """
     parser = ArgumentParser(__doc__)
     parser.add_argument("--name", "-n", help="Experiment name", default="baseline")
+    parser.add_argument("--model", "-m", help="Model name", default="")
     parser.add_argument("--train", action="store_true")
     parser.add_argument("--epoch", default=80, type=int)
     parser.add_argument("--batch-size", "-b", default=512, type=int)
