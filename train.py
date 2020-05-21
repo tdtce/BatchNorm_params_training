@@ -1,3 +1,7 @@
+from tqdm import tqdm
+import torch
+
+
 def train_one_epoch(config):
     """
     Function read config and train the model for one epoch.
@@ -19,23 +23,28 @@ def train_one_epoch(config):
 
     model.train()
     losses = []
-    for step, (x, y) in enumerate(train_loader):
+
+    # Make iterator
+    t = tqdm(iter(train_loader), leave=False, total=len(train_loader))
+    for step, (x, y) in enumerate(t):
+        x = x.to(device)
+        y = y.to(device)
+
+        optimizer.zero_grad()
+
         prediciton = model(x)
 
         loss = loss_fn(prediciton, y)
-        losses.append(loss)
-
-        optimizer.zero_grad()
+        losses.append(loss.item())
         loss.backward()
+
         optimizer.step()
-        # Scheduler ReduceLROnPlateau should step after validation
-        # if using another scheduler uncomment next line
-        # lr_scheduler.step()
+        lr_scheduler.step()
 
     return losses
 
 
-def validate(model, loader, loss_fn, val_steps, writer, device):
+def validate(config):
     """
     Function read config and validate model over validation data loader.
     Params
@@ -56,14 +65,19 @@ def validate(model, loader, loss_fn, val_steps, writer, device):
 
     losses = []
     metric_values = []
-    for step, (x, y) in enumerate(val_loader):
+
+    # Make iterator
+    t = tqdm(iter(val_loader), leave=False, total=len(val_loader))
+    for step, (x, y) in enumerate(t):
+        x = x.to(device)
+        y = y.to(device)
 
         with torch.no_grad():
             prediciton = model(x)
 
         loss = loss_fn(prediciton, y)
-        losses.append(loss)
+        losses.append(loss.item())
 
-        metric_on_batch = metric(predicitons, y)
+        metric_on_batch = metric(prediciton, y)
         metric_values.append(metric_on_batch)
     return losses, metric_values

@@ -18,7 +18,13 @@ def predict(model, loader, device):
     model.eval()
     metric_values = []
     predictions = []
-    for step, (x, y) in enumerate(test_loader):
+
+    # Make iterator
+    t = tqdm(iter(test_loader), leave=False, total=len(test_loader))
+    for step, (x, y) in enumerate(t):
+        x = x.to(device)
+        y = y.to(device)
+
         with torch.no_grad():
             pred = model(x)
         predictions.append[pred]

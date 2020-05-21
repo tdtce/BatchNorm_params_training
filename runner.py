@@ -1,28 +1,35 @@
-from train import train_one_epoch
 import torch.nn as nn
-from torch import optim
 import sys
 import numpy as np
 import torch
+
 from argparse import ArgumentParser
-# from torchsummary import summary
 from torch.utils.tensorboard import SummaryWriter
 from dataloader import get_train_val_loader, get_test_loader
 from transforms import get_train_transforms, get_val_transforms
 from transforms import get_test_transforms
-from loss_fn import accuracy
+from utils import accuracy, custom_decrease
 from model import build_model
+from train import train_one_epoch, validate
+from torch import optim
+from utils import
 
 def runner(args):
-    '''
-
-    '''
+    """
+    Main fuction that get config from command line and creates
+    everything you need for training and testing - model, optimizer,
+    loss function and metric. Also runner performs a training or testing
+    process and logging.
+    Params
+    ------
+    - args : contains all variables from command line
+    """
     print("Preparation in progress ...")
     device = torch.device("cuda: 0") if args.gpu else torch.device("cpu")
     model = build_model("ResNet18", device)
 
     optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9)
-    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
+    lr_scheduler = optim.lr_scheduler.LambdaLR(optimizer, custom_decrease)
     loss_fn = nn.CrossEntropyLoss()
     metric = accuracy
     # Make config for easy use with functions
@@ -54,19 +61,18 @@ def runner(args):
         writer = SummaryWriter()
         best_val_loss = np.inf
         for epoch in range(args.epoch):
+            print(f"Starting {epoch}/{args.epoch} epoch")
             train_losses = train_one_epoch(config)
             train_loss = np.mean(train_losses)
 
             val_losses, val_metric_values = validate(config)
             val_loss = np.mean(val_losses)
             val_metric_value = np.mean(val_metric_values)
-            # Update scheduler ReduceLROnPlateau
-            lr_scheduler.step(val_loss)
             # Logging
             writer.add_scalar('Loss/train', train_loss)
             writer.add_scalar('Loss/val', val_loss)
             writer.add_scalar('Metric/val', val_metric_value)
-            print(f"Epoch {epoch} / {args.epoch}:" + \
+            print(f"Epoch {epoch}/{args.epoch}:" + \
                   f" train loss = {train_loss} " + \
                   f"val loss = {val_loss}")
             # Save best model
@@ -100,8 +106,8 @@ def parse_arguments():
     """
     Parse argument from command line
 
-    Parser arguments:
-    -----------------
+    Parser arguments
+    ----------------
     - name: name of experiment for saving purposes.
     - train: enable train mode.
     - test: enable test mode.
