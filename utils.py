@@ -52,7 +52,6 @@ def get_plan(name):
     return plan
 
 def weight_init(m):
-    print(m)
     if isinstance(m, nn.Conv2d):
         xavier_normal_(m.weight.data)
     if isinstance(m, nn.Linear):

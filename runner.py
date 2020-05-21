@@ -12,7 +12,7 @@ from utils import accuracy, custom_decrease
 from model import build_model
 from train import train_one_epoch, validate
 from torch import optim
-
+from test import predict
 
 def runner(args):
     """
@@ -59,6 +59,7 @@ def runner(args):
         # Writer save train loss and val loss on every last_epoch
         # Also writer save train loss on every batch
         writer = SummaryWriter()
+        best_metric_value = np.inf
         best_val_loss = np.inf
         for epoch in range(args.epoch):
             print(f"Starting {epoch + 1}/{args.epoch} epoch")
@@ -72,17 +73,21 @@ def runner(args):
             writer.add_scalar('Loss/train', train_loss)
             writer.add_scalar('Loss/val', val_loss)
             writer.add_scalar('Metric/val', val_metric_value)
-            print(f"Epoch {epoch + 1}/{args.epoch}:" + \
-                  f" train loss = {train_loss} " + \
-                  f"val loss = {val_loss}")
+            print(f"Epoch {epoch + 1}/{args.epoch}:   " + \
+                  f"train loss = {train_loss:.2f}   |   " + \
+                  f"val loss = {val_loss:.2f}   |   " + \
+                  f"accuracy value = {val_metric_value:.2f} %")
             # Save best model
             if best_val_loss > val_loss:
                 torch.save(model.state_dict(), f"{args.name}_best.pth")
                 best_val_loss = val_loss
-        print (f"Training is over! Best validation loss = {best_val_loss}")
+                best_metric_value = val_metric_value
+        print (f"Training is over! \n" + \
+               f"Best validation loss = {best_val_loss} \n" + \
+               f"Accuracy for best loss = {best_metric_value}")
     else:
         print("Testing mode")
-        test_transforms = get_test_transform()
+        test_transforms = get_test_transforms()
         test_dataloader = get_test_loader(args.data_dir,
                                           test_transforms,
                                           args.batch_size)

@@ -1,4 +1,8 @@
-def predict(model, loader, device):
+from tqdm import tqdm
+import torch
+
+
+def predict(config):
     """
     Function read config and test the model on test data.
     Params
@@ -27,7 +31,7 @@ def predict(model, loader, device):
 
         with torch.no_grad():
             pred = model(x)
-        predictions.append[pred]
+        predictions.extend(pred)
         metric_on_batch = metric(pred, y)
         metric_values.append(metric_on_batch)
     return predictions, metric_values
