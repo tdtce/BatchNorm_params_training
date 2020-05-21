@@ -3,3 +3,5 @@ cifar-10-batches-py
 runs
 __pycache__
 .ipynb_checkpoints
+.DS_Store
+*.pth

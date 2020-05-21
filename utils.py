@@ -1,5 +1,5 @@
 import torch
-from torch.nn.init import xavier_normal_
+from torch.nn.init import kaiming_normal_
 from torch import nn
 
 
@@ -52,12 +52,20 @@ def get_plan(name):
     return plan
 
 def weight_init(m):
-    if isinstance(m, nn.Conv2d):
-        xavier_normal_(m.weight.data)
-    if isinstance(m, nn.Linear):
-        xavier_normal_(m.weight.data)
+    if isinstance(m, torch.nn.Linear) or isinstance(m, torch.nn.Conv2d):
+        torch.nn.init.kaiming_normal_(m.weight)
+    if isinstance(m, torch.nn.BatchNorm2d):
+        m.weight.data = torch.rand(m.weight.data.shape)
+        m.bias.data = torch.zeros_like(m.bias.data)
 
+def save_predictions (predicitons, name):
+    answers = list(map(lambda x: x.argmax().item(), test_predictions))
 
+    dir_name = "predictions"
+    if not os.path.exists(dir_name):
+        os.mkdir(dirName)
+    with open(os.path.join(dir_name, name + "pred.csv")) as f:
+        f.write(", ".join(map(str, answers)))
 
 
                 # The naming scheme for a ResNet is 'cifar_resnet_N[_W]'.

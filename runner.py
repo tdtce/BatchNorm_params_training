@@ -8,7 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 from dataloader import get_train_val_loader, get_test_loader
 from transforms import get_train_transforms, get_val_transforms
 from transforms import get_test_transforms
-from utils import accuracy, custom_decrease
+from utils import accuracy, custom_decrease, save_predictions
 from model import build_model
 from train import train_one_epoch, validate
 from torch import optim
@@ -28,7 +28,10 @@ def runner(args):
     device = torch.device("cuda: 0") if args.gpu else torch.device("cpu")
     model = build_model(args.model, device)
 
-    optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(),
+                          lr=args.learning_rate,
+                          momentum=0.9,
+                          weight_decay=1e-4)
     lr_scheduler = optim.lr_scheduler.LambdaLR(optimizer, custom_decrease)
     loss_fn = nn.CrossEntropyLoss()
     metric = accuracy
@@ -76,7 +79,7 @@ def runner(args):
             print(f"Epoch {epoch + 1}/{args.epoch}:   " + \
                   f"train loss = {train_loss:.2f}   |   " + \
                   f"val loss = {val_loss:.2f}   |   " + \
-                  f"accuracy value = {val_metric_value:.2f} %")
+                  f"accuracy = {val_metric_value:.2f}%")
             # Save best model
             if best_val_loss > val_loss:
                 torch.save(model.state_dict(), f"{args.name}_best.pth")
@@ -104,6 +107,7 @@ def runner(args):
             model.load_state_dict(state_dict)
 
         test_predictions, metric_values = predict(config)
+        save_predictions(test_predictions, args.name)
         print(f"Metric value on test = {np.mean(metric_values)}")
 
 
