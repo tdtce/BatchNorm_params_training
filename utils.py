@@ -108,8 +108,8 @@ def save_predictions (predicitons, name):
 
     dir_name = "predictions"
     if not os.path.exists(dir_name):
-        os.mkdir(dirName)
-    with open(os.path.join(dir_name, name + "pred.csv")) as f:
+        os.mkdir(dir_name)
+    with open(os.path.join(dir_name, name + "_pred.csv"), "w") as f:
         f.write(", ".join(map(str, answers)))
 
 def get_lr(optimizer):
