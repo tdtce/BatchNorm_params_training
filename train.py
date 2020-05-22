@@ -39,7 +39,8 @@ def train_one_epoch(config):
         loss.backward()
 
         optimizer.step()
-    # Decay lr only after epoch    
+
+    # Decay lr only after epoch
     lr_scheduler.step()
 
     return losses

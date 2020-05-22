@@ -37,8 +37,10 @@ class ResNetCifar(nn.Module):
         """
         Params
         ------
-        - plan [list] :
-        - initializer [] :
+        - plan [list] : structure of network modules [(W, D), (2*W, D), (4*W, D)].
+          W - filters, D - number of ResNet blocks.
+        - initializer [function] : initializer apply to all layers with
+          initialization purpose
         - outputs [int] : amount of output classes
         """
         super(ResNetCifar, self).__init__()

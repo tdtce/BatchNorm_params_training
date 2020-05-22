@@ -23,6 +23,16 @@ def accuracy(predicitons, labels):
     return acc
 
 def custom_decrease(epoch):
+    """
+    Function describes the LR multiplier depending on epoch. Step function
+    as in the paper.
+    Params
+    ------
+    - epoch [int] : epoch number.
+    Returns
+    -------
+    - multiplier [int] : multiplier for learning rate.
+    """
     if epoch < 80:
         return 1
     if epoch < 120:
@@ -31,6 +41,16 @@ def custom_decrease(epoch):
         return 0.01
 
 def is_valid_cifar_name(name):
+    """
+    Function check CIFAR ResNet name because name has information about
+    network structure.
+    Params
+    ------
+    - name [string] : CIFAR ResNet name (template: cifar_resnet_N[_W]).
+    Returns
+    -------
+    - is_valid [bool] : is name valid or not.
+    """
     params = name.split('_')
     is_len_correct = 5 > len(params) > 2
     is_params_positive = all([int(x) > 0 for x in params[2:]])
@@ -44,11 +64,36 @@ def is_valid_cifar_name(name):
     return is_valid
 
 def get_plan(name):
+    """
+    Function scan CIFAR ResNet name because name has information about
+    network structure. Name template - cifar_resnet_N[_W]. Each network building
+    by that plan:
+    Conv -> [Segment 1] -> [Segment 2] -> [Segment 3] -> Linear
+    Each segment consists of D blocks. Each block is 2 convolutional layers
+    surrounded by a residual connection. Each layer in the first segment
+    has W filters, each layer in the second segment has 32W filters, and
+    each layer in the third segment has 64W filters.
+    N - total amount of layers. N = 1 conv + 1 Linear + 3 * D * 2. By default
+    W = 16.
+    Example. cifar_resnet_20
+    => N = 20, W = 16
+    N = 1 + 2*size(Segment 1) + 2*size(Segment 2) + 2*size(Segment 3) + 1
+    N - 2 = 6 * size(Segment)
+    N - 2 = 6 * D
+    D = (N - 2) // 6
+    D = 3
+    Params
+    ------
+    - name [string] : CIFAR ResNet name (example: cifar_resnet_14).
+    Returns
+    -------
+    - plan [list] : network structure.
+    """
     params = name.split('_')
     W = 16 if len(params) == 3 else int(params[3])
     D = int(params[2])
     D = (D - 2) // 6
-    plan = [(W, D), (2*W, D), (4*W, D)]
+    plan = [(W, D), (2 * W, D), (4 * W, D)]
     return plan
 
 def weight_init(m):
@@ -59,7 +104,7 @@ def weight_init(m):
         m.bias.data = torch.zeros_like(m.bias.data)
 
 def save_predictions (predicitons, name):
-    answers = list(map(lambda x: x.argmax().item(), test_predictions))
+    answers = list(map(lambda x: x.argmax().item(), predicitons))
 
     dir_name = "predictions"
     if not os.path.exists(dir_name):
