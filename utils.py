@@ -22,12 +22,12 @@ def accuracy(predicitons, labels):
     acc = 100 * correct / total
     return acc
 
-def custom_decrease(it):
-    if it < 80:
+def custom_decrease(epoch):
+    if epoch < 80:
         return 1
-    if it < 120:
+    if epoch < 120:
         return 0.1
-    if it >= 120:
+    if epoch >= 120:
         return 0.01
 
 def is_valid_cifar_name(name):

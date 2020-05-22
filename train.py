@@ -37,9 +37,10 @@ def train_one_epoch(config):
         loss = loss_fn(prediciton, y)
         losses.append(loss.item())
         loss.backward()
-        
+
         optimizer.step()
-        lr_scheduler.step()
+    # Decay lr only after epoch    
+    lr_scheduler.step()
 
     return losses
 
