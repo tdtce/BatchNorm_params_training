@@ -12,6 +12,7 @@ def train_one_epoch(config):
     Returns
     -------
     - losses [list]: list of batch losses during one epoch.
+    - metric_values [list] : list of batch metric values.
     """
     # Read config
     model = config["model"]
@@ -20,9 +21,11 @@ def train_one_epoch(config):
     loss_fn = config["loss_fn"]
     optimizer = config["optimizer"]
     lr_scheduler = config["lr_scheduler"]
+    metric = config["metric"]
 
     model.train()
     losses = []
+    metric_values = []
 
     # Make iterator
     t = tqdm(iter(train_loader), leave=False, total=len(train_loader))
@@ -38,12 +41,15 @@ def train_one_epoch(config):
         losses.append(loss.item())
         loss.backward()
 
+        metric_on_batch = metric(prediciton, y)
+        metric_values.append(metric_on_batch)
+
         optimizer.step()
 
     # Decay lr only after epoch
     lr_scheduler.step()
 
-    return losses
+    return losses, metric_values
 
 
 def validate(config):
@@ -55,7 +61,8 @@ def validate(config):
       function, optimizer and scheduler.
     Returns
     -------
-    - losses [list]: list of batch losses.
+    - losses [list] : list of batch losses.
+    - metric_values [list] : list of batch metric values.
     """
     # Read config
     model = config["model"]

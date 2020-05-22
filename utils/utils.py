@@ -1,7 +1,6 @@
 import torch
-from torch.nn.init import kaiming_normal_
-from torch import nn
 import os
+
 
 def accuracy(predicitons, labels):
     """
@@ -22,6 +21,7 @@ def accuracy(predicitons, labels):
     acc = 100 * correct / total
     return acc
 
+
 def custom_decrease(epoch):
     """
     Function describes the LR multiplier depending on epoch. Step function
@@ -39,6 +39,7 @@ def custom_decrease(epoch):
         return 0.1
     if epoch >= 120:
         return 0.01
+
 
 def is_valid_cifar_name(name):
     """
@@ -62,6 +63,7 @@ def is_valid_cifar_name(name):
                is_params_digit and \
                is_div_6
     return is_valid
+
 
 def get_plan(name):
     """
@@ -96,14 +98,32 @@ def get_plan(name):
     plan = [(W, D), (2 * W, D), (4 * W, D)]
     return plan
 
+
 def weight_init(m):
+    """
+    Initializer for ResNet. Convolutional and Linear layers get He
+    initialization. BatchNorm2d params has only 1 dimension and that type of
+    initialization can't be applied. For BatchNorm using rand init for weight
+    and zero init for bias
+    Params
+    ------
+    - m [Layer] : torch network layer.
+    """
     if isinstance(m, torch.nn.Linear) or isinstance(m, torch.nn.Conv2d):
         torch.nn.init.kaiming_normal_(m.weight)
     if isinstance(m, torch.nn.BatchNorm2d):
         m.weight.data = torch.rand(m.weight.data.shape)
         m.bias.data = torch.zeros_like(m.bias.data)
 
-def save_predictions (predicitons, name):
+
+def save_predictions(predicitons, name):
+    """
+    Function save predictions as predicted labels in csv format.
+    Params
+    ------
+    - predicitons [Tensor] : Tensor with predictions.
+    - name [str] : network name. Output file -> {name}_pred.csv
+    """
     answers = list(map(lambda x: x.argmax().item(), predicitons))
 
     dir_name = "predictions"
@@ -111,20 +131,3 @@ def save_predictions (predicitons, name):
         os.mkdir(dir_name)
     with open(os.path.join(dir_name, name + "_pred.csv"), "w") as f:
         f.write(", ".join(map(str, answers)))
-
-def get_lr(optimizer):
-    for param_group in optimizer.param_groups:
-        return param_group['lr']
-                # The naming scheme for a ResNet is 'cifar_resnet_N[_W]'.
-                # The ResNet is structured as an initial convolutional layer followed by three "segments"
-                # and a linear output layer. Each segment consists of D blocks. Each block is two
-                # convolutional layers surrounded by a residual connection. Each layer in the first segment
-                # has W filters, each layer in the second segment has 32W filters, and each layer in the
-                # third segment has 64W filters.
-                # The name of a ResNet is 'cifar_resnet_N[_W]', where W is as described above.
-                # N is the total number of layers in the network: 2 + 6D.
-                # The default value of W is 16 if it isn't provided.
-                # For example, ResNet-20 has 20 layers. Exclusing the first convolutional layer and the final
-                # linear layer, there are 18 convolutional layers in the blocks. That means there are nine
-                # blocks, meaning there are three blocks per segment. Hence, D = 3.
-                # The name of the network would be 'cifar_resnet_20' or 'cifar_resnet_20_16'.

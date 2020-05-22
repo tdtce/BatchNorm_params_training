@@ -1,10 +1,21 @@
 import torchvision.models as models
 import torch.nn as nn
-from utils import is_valid_cifar_name, get_plan, weight_init
-from resnet_cifar import ResNetCifar
+from utils.utils import is_valid_cifar_name, get_plan, weight_init
+from models.resnet_cifar import ResNetCifar
 
 
 def build_model(name, device, output=10):
+    """
+    Function build model by name.
+    Params
+    ------
+    - name [string] : name of architecture.
+    - device [string] : device for calculating cpu or cuda.
+    - output [int] : amount of network output.
+    Returns
+    -------
+    - model [nn.Module] : torch network model.
+    """
     if name == "ResNet18":
         model = models.resnet18(pretrained=True)
         model.fc = nn.Linear(model.fc.in_features, output, bias=True)
@@ -39,3 +50,4 @@ def build_model(name, device, output=10):
 
         model.to(device)
         return model
+    raise ValueError("Invalid model!")

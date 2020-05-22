@@ -4,12 +4,12 @@ import torch
 import numpy as np
 
 
-def get_train_val_loader(data_dir,
+def get_train_val_loaders(data_dir,
                          train_transforms,
                          val_transforms,
                          batch_size,
                          random_seed=42,
-                         val_size=0.1,
+                         val_size=0.9,
                          shuffle=True,
                          num_workers=1,
                          pin_memory=True):

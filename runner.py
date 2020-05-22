@@ -3,17 +3,16 @@ import sys
 import numpy as np
 import torch
 
-from argparse import ArgumentParser
-from torch.utils.tensorboard import SummaryWriter
-from dataloader import get_train_val_loader, get_test_loader
-from transforms import get_train_transforms, get_val_transforms
-from transforms import get_test_transforms
-from utils import accuracy, custom_decrease, save_predictions
-from model import build_model
-from train import train_one_epoch, validate
+from dataloader.dataloader import get_train_val_loaders, get_test_loader
+from dataloader.transforms import get_train_transforms, get_val_transforms
+from dataloader.transforms import get_test_transforms
+from utils.utils import accuracy, custom_decrease, save_predictions
+from models.builder import build_model
+from engine.train import train_one_epoch, validate
+from engine.test import predict
+from utils.logger import Logger
 from torch import optim
-from test import predict
-from utils import get_lr
+from argparse import ArgumentParser
 
 
 def runner(args):
@@ -24,7 +23,7 @@ def runner(args):
     process and logging.
     Params
     ------
-    - args : contains all variables from command line
+    - args : contains all variables from command line.
     """
     print("Preparation in progress ...")
     device = torch.device("cuda: 0") if args.gpu else torch.device("cpu")
@@ -38,59 +37,44 @@ def runner(args):
     loss_fn = nn.CrossEntropyLoss()
     metric = accuracy
     # Make config for easy use with functions
-    config = {"model" : model,
-              "optimizer" : optimizer,
-              "lr_scheduler" : lr_scheduler,
-              "loss_fn" : loss_fn,
-              "metric" : metric,
-              "device" : device}
+    config = {"model": model,
+              "optimizer": optimizer,
+              "lr_scheduler": lr_scheduler,
+              "loss_fn": loss_fn,
+              "metric": metric,
+              "device": device}
 
-    if (args.train):
+    if args.train:
         print("Training mode")
         print("Reading transforms")
         train_transforms = get_train_transforms()
         val_transforms = get_val_transforms()
 
         print("Reading data")
-        train_dataloader, val_dataloader = get_train_val_loader(args.data_dir,
-                                                                train_transforms,
-                                                                val_transforms,
-                                                                args.batch_size)
+        train_dataloader, val_dataloader = get_train_val_loaders(args.data_dir,
+                                                                 train_transforms,
+                                                                 val_transforms,
+                                                                 args.batch_size)
         # Add dataloaders in config
-        config.update({"train_dataloader" : train_dataloader})
-        config.update({"val_dataloader" : val_dataloader})
+        config.update({"train_dataloader": train_dataloader})
+        config.update({"val_dataloader": val_dataloader})
+
+        logger = Logger(args.epoch)
 
         print("Start training")
-        # Writer save train loss and val loss on every last_epoch
-        # Also writer save train loss on every batch
-        writer = SummaryWriter()
-        best_metric_value = np.inf
-        best_val_loss = np.inf
         for epoch in range(args.epoch):
             print(f"Starting {epoch + 1}/{args.epoch} epoch")
-            train_losses = train_one_epoch(config)
-            train_loss = np.mean(train_losses)
+            train_losses, train_metric_values = train_one_epoch(config)
+            logger.train_step(train_losses, train_metric_values)
 
             val_losses, val_metric_values = validate(config)
-            val_loss = np.mean(val_losses)
-            val_metric_value = np.mean(val_metric_values)
-            # Logging
-            writer.add_scalar('Loss/train', train_loss, epoch)
-            writer.add_scalar('Loss/val', val_loss, epoch)
-            writer.add_scalar('Metric/val', val_metric_value, epoch)
-            print(f"Epoch {epoch + 1}/{args.epoch}:   " + \
-                  f"train loss = {train_loss:.2f}   |   " + \
-                  f"val loss = {val_loss:.2f}   |   " + \
-                  f"accuracy = {val_metric_value:.2f}%")
-            print(f"learning rate = {get_lr(optimizer)}")
-            # Save best model
-            if best_val_loss > val_loss:
-                torch.save(model.state_dict(), f"{args.name}_best.pth")
-                best_val_loss = val_loss
-                best_metric_value = val_metric_value
-        print (f"Training is over! \n" + \
-               f"Best validation loss = {best_val_loss} \n" + \
-               f"Accuracy for best loss = {best_metric_value}")
+            logger.val_step(val_losses, val_metric_values)
+
+            logger.print_current()
+
+            logger.save_best(model, args.name)
+        logger.print_summary()
+
     else:
         print("Testing mode")
         test_transforms = get_test_transforms()
@@ -98,11 +82,11 @@ def runner(args):
                                           test_transforms,
                                           args.batch_size)
         # Add dataloader in config
-        config.update({"test_dataloader" : test_dataloader})
+        config.update({"test_dataloader": test_dataloader})
 
         # Load weights
         # if weight path don't specified used best model from training
-        if (args.weight_path == ""):
+        if args.weight_path == "":
             state_dict = torch.load(f"{args.name}_best.pth")
             model.load_state_dict(state_dict)
         else:
