@@ -1,5 +1,6 @@
 # BatchNorm_params_training
-Изучение влияния параметров BatchNorm на точность
+Изучение влияния параметров BatchNorm на точность. Реализация статьи [Training BatchNorm and Only BatchNorm:
+On the Expressive Power of Random Features in CNNs](https://arxiv.org/pdf/2003.00152.pdf)
 
 ## Установка
 Пакеты необходимые для работы
