@@ -67,7 +67,9 @@ def save_predictions (predicitons, name):
     with open(os.path.join(dir_name, name + "pred.csv")) as f:
         f.write(", ".join(map(str, answers)))
 
-
+def get_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']
                 # The naming scheme for a ResNet is 'cifar_resnet_N[_W]'.
                 # The ResNet is structured as an initial convolutional layer followed by three "segments"
                 # and a linear output layer. Each segment consists of D blocks. Each block is two

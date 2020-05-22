@@ -13,6 +13,8 @@ from model import build_model
 from train import train_one_epoch, validate
 from torch import optim
 from test import predict
+from utils import get_lr
+
 
 def runner(args):
     """
@@ -73,13 +75,14 @@ def runner(args):
             val_loss = np.mean(val_losses)
             val_metric_value = np.mean(val_metric_values)
             # Logging
-            writer.add_scalar('Loss/train', train_loss)
-            writer.add_scalar('Loss/val', val_loss)
-            writer.add_scalar('Metric/val', val_metric_value)
+            writer.add_scalar('Loss/train', train_loss, epoch)
+            writer.add_scalar('Loss/val', val_loss, epoch)
+            writer.add_scalar('Metric/val', val_metric_value, epoch)
             print(f"Epoch {epoch + 1}/{args.epoch}:   " + \
                   f"train loss = {train_loss:.2f}   |   " + \
                   f"val loss = {val_loss:.2f}   |   " + \
                   f"accuracy = {val_metric_value:.2f}%")
+            print(f"learning rate = {get_lr(optimizer)}")
             # Save best model
             if best_val_loss > val_loss:
                 torch.save(model.state_dict(), f"{args.name}_best.pth")
