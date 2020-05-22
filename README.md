@@ -11,7 +11,7 @@ torch           1.4.0
 torchvision     0.5.0
 tqdm            4.43.0
 ```
-Если необходима поддержка GPU, то установка с [сайта](https://pytorch.org/), для установки без GPU используй скрипт:
+Если необходима поддержка GPU, то установка с [сайта](https://pytorch.org/), для установки без GPU используй:
 ```shell
 git clone https://github.com/tdtce/BatchNorm_params_training
 cd ./BatchNorm_params_training
