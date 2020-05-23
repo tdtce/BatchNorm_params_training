@@ -39,11 +39,8 @@ def build_model(name, device, output=10):
         model = ResNetCifar(plan, weight_init, output)
         # Freeze all params without BN bias
         for k, v in model.named_parameters():
-            # Don't feeze BN bias layer
-            if "bn" in k and "bias" in k:
-                continue
-            # Don't freeze BN bias on skip connections
-            if "skip" in k and "bias" in k:
+            # Don't freeze BN and BN on skip layer
+            if "bn" in k or "skip.1" in k:
                 continue
             # Otherwise disable grad
             v.requires_grad = False

@@ -109,7 +109,7 @@ def parse_arguments():
     ----------------
     - name : name of experiment for saving purposes.
     - model : name of network architecture.
-    - test : enable test mode. Train mode by default
+    - train : enable train mode. Test mode by default
     - epoch : amount of epoch for training.
     - batch_size : amount of samples per iteration during training.
     - learning_rate : initial learning rate.
