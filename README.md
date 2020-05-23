@@ -29,10 +29,11 @@ repository
     │       └── transforms.py                  
     └── engine
     │       └── test.py                        # Содержит код для обучения и валидации
-    │       └── train.py                       # Здесь для тестировани
+    │       └── train.py                       # Здесь для тестирования
     └── models
     │       └── builder.py                     # Создание модели по названию
     │       └── resnet_cifar.py                # Модель как в статье - специально приготовленный ResNet
+            └── utils.py                       # Утилиты для создания моделей
     └── utils
             └── logger.py                      # Логгирование ошибки и точности, вывод в тензорборд и консоль
             └── utils.py                       # Утилиты для разных модулей
@@ -44,8 +45,8 @@ repository
     --name           : название эксперимента, используется для сохранения.
     --model          : название архитектуры сети, оно дальше парсится и создается 
                        сеть. Если указан неверно выбросить исключение.
-    --test           : включается режим тестирования. Если не указан, то по умолчанию 
-                       режим тренировки.
+    --train          : включается режим тренировки. Если не указан, то по умолчанию 
+                       режим тестирования.
     --epoch          : количество эпох для тренировки.
     --batch_size     : размер батча.
     --learning_rate  : начальный learning rate.
@@ -61,7 +62,37 @@ repository
 ```
 python runner.py --train --epoch 160 --batch-size 128 --learning-rate 0.1 --model cifar_resnet_110
 ```
-Примеры команды для тестирования без обученных весов
+Пример команды для тестирования без обученных весов
 ```
 python runner.py  --batch-size 128 --model cifar_freeze_14_2 --weight-path "init"
 ```
+Создание модели происходит с помощью параметра --model. 
+Для использования доступны все модели из статьи:
+- cifar_resnet_14
+- cifar_resnet_32
+- cifar_resnet_56
+- cifar_resnet_110
+- cifar_resnet_218
+- cifar_resnet_434
+- cifar_resnet_866
+- cifar_resnet_14_1
+- cifar_resnet_14_2
+- cifar_resnet_14_4
+- cifar_resnet_14_8
+- cifar_resnet_14_16
+- cifar_resnet_14_32
+- cifar_freeze_14
+- cifar_freeze_32
+- cifar_freeze_56
+- cifar_freeze_110
+- cifar_freeze_218
+- cifar_freeze_434
+- cifar_freeze_866
+- cifar_freeze_14_1
+- cifar_freeze_14_2
+- cifar_freeze_14_4
+- cifar_freeze_14_8
+- cifar_freeze_14_16            
+- cifar_freeze_14_32
+
+Первое число отвечает за общее количество слоев, вторая это множитель для количества весов на слое. Если второе число не указано значит множитель 1. С помощью первого числа можно увеличивать сеть в глубину, а с помощью второго - вширину. freeze в названии значит, что обучаются только веса 
