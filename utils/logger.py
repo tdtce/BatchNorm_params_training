@@ -9,8 +9,9 @@ class Logger:
     working need to call train_step and val_step on every epoch.
     All training info in folder runs.
     """
-    def __init__(self, epoch_max):
-        self._writer = SummaryWriter()
+    def __init__(self, name, epoch_max):
+        self._name = name
+        self._writer = SummaryWriter(f"./runs/{name}")
 
         self._best_val_loss = np.inf
         self._best_val_metric = np.inf
@@ -40,9 +41,9 @@ class Logger:
         self._writer.add_scalar('Metric/val', self._val_metric, self._epoch)
         self._epoch += 1
 
-    def save_best(self, model, name):
+    def save_best(self, model):
         if self._best_val_loss > self._val_loss:
-            torch.save(model.state_dict(), f"{name}_best.pth")
+            torch.save(model.state_dict(), f"{self._name}_best.pth")
             self._best_val_loss = self._val_loss
             self._best_val_metric = self._val_metric
 
@@ -61,6 +62,12 @@ class Logger:
                                  {'val': self._val_metric,
                                   'train': self._train_metric},
                                  self._epoch)
+
+        with open(f"./runs/{self._name}/{self._name}_loss.csv", "a") as f:
+            f.write(f"{self._train_loss}, {self._val_loss}\n")
+        with open(f"./runs/{self._name}/{self._name}_metric.csv", "a") as f:
+            f.write(f"{self._train_metric}, {self._val_metric}\n")
+
         print(f"Epoch {self._epoch}/{self._epoch_max}:\n" +
               f"TRAIN loss = {self._train_loss:.2f}   |   " +
               f"accuracy = {self._train_metric:.2f}%\n" +

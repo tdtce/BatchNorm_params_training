@@ -1,6 +1,6 @@
 import torchvision.models as models
 import torch.nn as nn
-from utils.utils import is_valid_cifar_name, get_plan, weight_init
+from models.utils import is_valid_cifar_name, get_plan, weight_init
 from models.resnet_cifar import ResNetCifar
 
 

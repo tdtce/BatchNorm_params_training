@@ -59,7 +59,7 @@ def runner(args):
         config.update({"train_dataloader": train_dataloader})
         config.update({"val_dataloader": val_dataloader})
 
-        logger = Logger(args.epoch)
+        logger = Logger(args.name, args.epoch)
 
         print("Start training")
         for epoch in range(args.epoch):
@@ -72,7 +72,7 @@ def runner(args):
 
             logger.print_current()
 
-            logger.save_best(model, args.name)
+            logger.save_best(model)
         logger.print_summary()
 
     else:
