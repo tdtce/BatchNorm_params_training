@@ -86,9 +86,12 @@ def runner(args):
 
         # Load weights
         # if weight path don't specified used best model from training
-        if args.weight_path == "":
+        if args.weight_path == " ":
             state_dict = torch.load(f"{args.name}_best.pth")
             model.load_state_dict(state_dict)
+        elif args.weight_path == "init":
+            # If you want test with init weight
+            pass
         else:
             state_dict = torch.load(args.weight_path)
             model.load_state_dict(state_dict)
@@ -106,12 +109,12 @@ def parse_arguments():
     ----------------
     - name : name of experiment for saving purposes.
     - model : name of network architecture.
-    - train : enable train mode.
-    - test : enable test mode.
+    - test : enable test mode. Train mode by default
     - epoch : amount of epoch for training.
     - batch_size : amount of samples per iteration during training.
     - learning_rate : initial learning rate.
-    - weight_path : weight for loading.
+    - weight_path : weight for loading. For testing with init weight
+      use "init".
     - gpu : select device for eval (if gpu not specified then used CPU).
     - data_dir : folder for downloading dataset
     """
@@ -122,7 +125,7 @@ def parse_arguments():
     parser.add_argument("--epoch", default=80, type=int)
     parser.add_argument("--batch-size", "-b", default=512, type=int)
     parser.add_argument("--learning-rate", "-lr", default=1e-3, type=float)
-    parser.add_argument("--weight-path", default="")
+    parser.add_argument("--weight-path", default=" ")
     parser.add_argument("--gpu", action="store_true")
     parser.add_argument("--data-dir", default="~")
 

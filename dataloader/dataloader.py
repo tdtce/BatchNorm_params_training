@@ -9,7 +9,7 @@ def get_train_val_loaders(data_dir,
                          val_transforms,
                          batch_size,
                          random_seed=42,
-                         val_size=0.9,
+                         val_size=0.1,
                          shuffle=True,
                          num_workers=1,
                          pin_memory=True):

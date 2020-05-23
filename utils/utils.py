@@ -92,7 +92,7 @@ def get_plan(name):
     - plan [list] : network structure.
     """
     params = name.split('_')
-    W = 16 if len(params) == 3 else int(params[3])
+    W = 16 if len(params) == 3 else int(params[3]) * 16
     D = int(params[2])
     D = (D - 2) // 6
     plan = [(W, D), (2 * W, D), (4 * W, D)]
