@@ -19,6 +19,12 @@ cd ./BatchNorm_params_training
 pip install -r requirements.txt
 ```
 
+Веса для моделей можно скачать [здесь](https://drive.google.com/file/d/1CqJVSkHknjAAp7hvVDsaVZTbfNU-bmUY/view).
+
+## Отчет
+Отчет по работе [здесь](https://github.com/tdtce/BatchNorm_params_training/blob/master/summary.ipynb).
+Несколько примеров по работе фреймворка [здесь](https://github.com/tdtce/BatchNorm_params_training/blob/master/examples.ipynb).
+
 ## Общая структура фреймворка
 ```
 repository
@@ -32,10 +38,17 @@ repository
     └── models
     │       └── builder.py                     # Создание модели по названию
     │       └── resnet_cifar.py                # Модель как в статье - специально приготовленный ResNet
-            └── utils.py                       # Утилиты для создания моделей
+    │       └── utils.py                       # Утилиты для создания моделей
     └── utils
-            └── logger.py                      # Логгирование ошибки и точности, вывод в тензорборд и консоль
-            └── utils.py                       # Утилиты для разных модулей
+    │       └── logger.py                      # Логгирование ошибки и точности, вывод в тензорборд и консоль
+    │       └── utils.py                       # Утилиты для разных модулей
+    │       └── visual.py                      # Функции для отрисовки графиков
+    │                                          # Следующие папки и файлы добавлены для показа результатов 
+    └── Weight                                 
+    │       └── runs                           # Содержит информацию о тренировке
+    └── predictions        
+            └── save_results                   # Результаты моделей на тесте и предсказания 
+    └── img                                    # Изображения для отчета       
 ```
 
 ## Использование
