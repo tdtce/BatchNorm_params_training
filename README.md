@@ -11,6 +11,7 @@ tensorboard     2.1.1
 torch           1.4.0
 torchvision     0.5.0
 tqdm            4.43.0
+pandas          1.0.2 
 ```
 Если необходима поддержка GPU, то установка с [сайта](https://pytorch.org/), для установки без GPU используй:
 ```shell
