@@ -93,11 +93,11 @@ def runner(args):
             # If you want test with init weight
             pass
         else:
-            state_dict = torch.load(args.weight_path)
+            state_dict = torch.load(args.weight_path, map_location=device)
             model.load_state_dict(state_dict)
 
         test_predictions, metric_values = predict(config)
-        save_predictions(test_predictions, args.name)
+        save_predictions(test_predictions, metric_values, args.name)
         print(f"Metric value on test = {np.mean(metric_values)}")
 
 

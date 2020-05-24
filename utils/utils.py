@@ -1,6 +1,6 @@
 import torch
 import os
-from models.builder import build_model
+import numpy as np
 
 
 def accuracy(predicitons, labels):
@@ -42,7 +42,7 @@ def custom_decrease(epoch):
         return 0.01
 
 
-def save_predictions(predicitons, name):
+def save_predictions(predicitons, metric_values, name):
     """
     Function save predictions as predicted labels in csv format.
     Params
@@ -57,52 +57,5 @@ def save_predictions(predicitons, name):
         os.mkdir(dir_name)
     with open(os.path.join(dir_name, name + "_pred.csv"), "w") as f:
         f.write(", ".join(map(str, answers)))
-
-
-def count_params(model):
-    """
-    Function count params of model.
-    Params
-    ------
-    - model [nn.Module] : torch network.
-    Returns
-    -------
-    - params_count [tuple] : total params, batch norm params,
-      trainable params, linear params, skip params
-    """
-    total_params = 0
-    batch_norm_params = 0
-    trainable_params = 0
-    linear_params = 0
-    skip_params = 0
-
-    for name, params in model.named_parameters():
-        num_params = params.numel()
-
-        total_params += num_params
-        if "bn" in name or "skip.1" in name:
-            batch_norm_params += num_params
-        if params.requires_grad:
-            trainable_params += num_params
-        if "fc" in name:
-            linear_params += num_params
-        if "skip" in name:
-            skip_params += num_params
-
-    return batch_norm_params, skip_params, linear_params, total_params, trainable_params
-
-
-def print_table(models):
-    """
-    Function print table of params amount in models.
-    Params
-    ------
-    - models [list] : list with model names.
-    """
-    col_names = ["BatchNorm", "Shortcut", "Output", "Total",  "Trainable"]
-
-    data = [count_params(build_model(m, "cpu")) for m in models]
-    row_format ="{:>18}" * (len(col_names) + 1)
-    print(row_format.format("", *col_names))
-    for model, row in zip(models, data):
-        print(row_format.format(model, *row))
+    with open(os.path.join(dir_name, name + "_metric.txt"), "w") as f:
+        f.write(str(np.mean(metric_values)))
