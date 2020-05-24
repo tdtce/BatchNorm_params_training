@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ## Отчет
 Отчет по работе [здесь](https://github.com/tdtce/BatchNorm_params_training/blob/master/summary.ipynb).
-Несколько примеров по работе фреймворка [здесь](https://github.com/tdtce/BatchNorm_params_training/blob/master/examples.ipynb).
+Несколько примеров по работе фреймворка [здесь](https://github.com/tdtce/BatchNorm_params_training/blob/master/examples.ipynb). Для проверки фреймворка удобно использовать [google colab](https://colab.research.google.com/drive/14Uv5jomcDAfNHpXbdKawEc_NGgFBTdmb?usp=sharing).
 
 ## Общая структура фреймворка
 ```
